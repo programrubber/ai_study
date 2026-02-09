@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>방화벽 규칙 빌더</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- 사이드바 네비게이션 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item" onclick="location.href='dashboard.html'">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">대시보드</span>
+                </li>
+                <li class="nav-item active">
+                    <span class="nav-icon">🔥</span>
+                    <span class="nav-text">방화벽 규칙</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="profile-avatar">👤</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sidebarUsername"></div>
+                        <div class="profile-role">관리자</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <h1>방화벽 규칙 빌더</h1>
+                <div class="user-info">
+                    <span id="currentUser"></span>
+                    <button class="btn-logout" id="logoutBtn">로그아웃</button>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="firewall-container">
+                    <!-- 좌측: 드래그 가능한 블록 -->
+                    <div class="blocks-panel card">
+                        <h2>규칙 구성 요소</h2>
+                        <p class="panel-description">드래그하여 규칙을 만드세요</p>
+
+                        <div class="block-category">
+                            <h3>소스</h3>
+                            <div class="draggable-block" draggable="true" data-type="source-ip">
+                                <span class="block-icon">🌐</span>
+                                <span class="block-label">소스 IP</span>
+                            </div>
+                            <div class="draggable-block" draggable="true" data-type="source-port">
+                                <span class="block-icon">🔌</span>
+                                <span class="block-label">소스 포트</span>
+                            </div>
+                        </div>
+
+                        <div class="block-category">
+                            <h3>목적지</h3>
+                            <div class="draggable-block" draggable="true" data-type="dest-ip">
+                                <span class="block-icon">🎯</span>
+                                <span class="block-label">목적지 IP</span>
+                            </div>
+                            <div class="draggable-block" draggable="true" data-type="dest-port">
+                                <span class="block-icon">🚪</span>
+                                <span class="block-label">목적지 포트</span>
+                            </div>
+                        </div>
+
+                        <div class="block-category">
+                            <h3>프로토콜</h3>
+                            <div class="draggable-block" draggable="true" data-type="protocol">
+                                <span class="block-icon">📡</span>
+                                <span class="block-label">프로토콜</span>
+                            </div>
+                        </div>
+
+                        <div class="block-category">
+                            <h3>액션</h3>
+                            <div class="draggable-block" draggable="true" data-type="action">
+                                <span class="block-icon">✅</span>
+                                <span class="block-label">액션</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 중앙: 규칙 빌더 -->
+                    <div class="builder-panel">
+                        <div class="card">
+                            <h2>규칙 생성 영역</h2>
+                            <div class="rule-builder-area" id="ruleBuilder">
+                                <div class="drop-zone" id="dropZone">
+                                    <p class="drop-hint">여기에 블록을 드래그하세요</p>
+                                </div>
+                            </div>
+                            <div class="builder-actions">
+                                <button class="btn-primary" id="addRuleBtn">규칙 추가</button>
+                                <button class="btn-secondary" id="clearRuleBtn">초기화</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h2>생성된 규칙 목록</h2>
+                            <div class="rules-list" id="rulesList">
+                                <p class="empty-state">아직 생성된 규칙이 없습니다</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 우측: 내보내기 -->
+                    <div class="export-panel card">
+                        <h2>내보내기</h2>
+                        <div class="export-buttons">
+                            <button class="btn-export" id="exportJsonBtn">
+                                <span class="export-icon">📄</span>
+                                JSON 내보내기
+                            </button>
+                            <button class="btn-export" id="exportIptablesBtn">
+                                <span class="export-icon">⚙️</span>
+                                iptables 내보내기
+                            </button>
+                        </div>
+
+                        <div class="export-preview">
+                            <h3>미리보기</h3>
+                            <div class="preview-tabs">
+                                <button class="tab-btn active" data-format="json">JSON</button>
+                                <button class="tab-btn" data-format="iptables">iptables</button>
+                            </div>
+                            <pre id="exportPreview" class="code-preview">규칙을 추가하면 여기에 표시됩니다</pre>
+                        </div>
+
+                        <div class="stats-info">
+                            <h3>통계</h3>
+                            <div class="stat-row">
+                                <span>총 규칙:</span>
+                                <span id="totalRules">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>ACCEPT:</span>
+                                <span id="acceptRules">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>DROP:</span>
+                                <span id="dropRules">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 입력 모달 -->
+    <div id="inputModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">값 입력</h3>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="btn-primary" id="modalConfirm">확인</button>
+                <button class="btn-secondary" id="modalCancel">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="firewall.js"></script>
+</body>
+</html>

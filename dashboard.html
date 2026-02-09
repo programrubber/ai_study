@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin 대시보드</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- 사이드바 네비게이션 -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">대시보드</span>
+                </li>
+                <li class="nav-item" onclick="location.href='firewall.html'">
+                    <span class="nav-icon">🔥</span>
+                    <span class="nav-text">방화벽 규칙</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="profile-avatar">👤</div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sidebarUsername"></div>
+                        <div class="profile-role">관리자</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="main-wrapper">
+            <header class="header">
+                <h1>Admin 대시보드</h1>
+                <div class="user-info">
+                    <span id="currentUser"></span>
+                    <button class="btn-logout" id="logoutBtn">로그아웃</button>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <!-- 통계 카드 -->
+                <div class="stats-overview">
+                    <div class="stat-card-modern">
+                        <div class="stat-icon">🛡️</div>
+                        <div class="stat-info">
+                            <h3>차단된 공격</h3>
+                            <p class="stat-value" id="blockedAttacks">0</p>
+                            <span class="stat-change positive">+12%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-modern">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <h3>허용된 요청</h3>
+                            <p class="stat-value" id="allowedRequests">0</p>
+                            <span class="stat-change positive">+5%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-modern">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-info">
+                            <h3>위협 레벨</h3>
+                            <p class="stat-value threat-level" id="threatLevel">중간</p>
+                            <span class="stat-change">실시간</span>
+                        </div>
+                    </div>
+                    <div class="stat-card-modern">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <h3>활성 규칙</h3>
+                            <p class="stat-value" id="activeRules">0</p>
+                            <span class="stat-change">규칙</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 드래그 가능한 위젯 그리드 -->
+                <div class="widgets-grid" id="widgetsGrid">
+                    <!-- 트래픽 흐름 차트 -->
+                    <div class="widget" draggable="true" data-widget-id="traffic-flow">
+                        <div class="widget-header">
+                            <h3>⋮⋮ 실시간 트래픽 흐름</h3>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="trafficFlowChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 공격 TOP 10 - 도넛 차트 -->
+                    <div class="widget" draggable="true" data-widget-id="attack-donut">
+                        <div class="widget-header">
+                            <h3>⋮⋮ 공격 유형 TOP 10</h3>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="attackDonutChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 공격 TOP 10 - 바 차트 -->
+                    <div class="widget" draggable="true" data-widget-id="attack-bar">
+                        <div class="widget-header">
+                            <h3>⋮⋮ 공격 빈도 TOP 10</h3>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="attackBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 공격 TOP 10 - 라인 차트 -->
+                    <div class="widget" draggable="true" data-widget-id="attack-line">
+                        <div class="widget-header">
+                            <h3>⋮⋮ 공격 추세 (24시간)</h3>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="attackLineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 방화벽 규칙 히트 -->
+                    <div class="widget widget-wide" draggable="true" data-widget-id="rule-hits">
+                        <div class="widget-header">
+                            <h3>⋮⋮ 방화벽 규칙 히트</h3>
+                        </div>
+                        <div class="widget-content">
+                            <div class="rule-hits-list" id="ruleHitsList">
+                                <p class="empty-state">규칙을 생성하면 히트 통계가 표시됩니다</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 차단/허용 통계 -->
+                    <div class="widget" draggable="true" data-widget-id="block-allow">
+                        <div class="widget-header">
+                            <h3>⋮⋮ 차단/허용 비율</h3>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="blockAllowChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+</html>
